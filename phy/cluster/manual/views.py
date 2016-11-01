@@ -1044,7 +1044,7 @@ class FeatureView(ManualClusteringView):
 
         # Attributes: extra features. This is a dictionary
         # {name: array}
-        # where each array is a `(n_spikes,)` array.
+        # where each array is a `(n_spikes,)` array.
         self.attributes = {}
         self.top_left_attribute = None
 
@@ -1374,6 +1374,7 @@ class CorrelogramView(ManualClusteringView):
         colors = _spike_colors(np.arange(n_clusters), alpha=1.)
 
         self.grid.shape = (n_clusters, n_clusters)
+        rp=0.001
         with self.building():
             for i in range(n_clusters):
                 for j in range(n_clusters):
@@ -1383,6 +1384,9 @@ class CorrelogramView(ManualClusteringView):
                                     color=color,
                                     ylim=ylim,
                                     )
+                    self[i, j].lines(pos=[[-rp/self[i,j].window_size, -1, -rp/self[i,j].window_size, 1],
+                        [rp/self[i,j].window_size, -1, rp/self[i,j].window_size, 1]],
+                        color=(1, 1, 1, 1))
                     # Cluster labels.
                     if i == (n_clusters - 1):
                         self[i, j].text(pos=[0., -1.],
