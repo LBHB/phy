@@ -55,7 +55,11 @@ class ClusterView(Table):
                             color: #86D16D;
                         }
                         ''')
-
+        self.add_styles('''
+                        table tr[data-mua='true'] {
+                            color: #00bbff;
+                        }
+                        ''')
     @property
     def state(self):
         return {'sort_by': self.current_sort}
@@ -246,14 +250,18 @@ class ManualClustering(object):
         @self.add_column(show=False)
         def skip(cluster_id):
             """Whether to skip that cluster."""
-            return (self.cluster_meta.get('group', cluster_id)
-                    in ('noise', 'mua'))
+            return (self.cluster_meta.get('group', cluster_id) == 'noise')
 
         @self.add_column(show=False)
         def good(cluster_id):
             """Good column for color."""
             return self.cluster_meta.get('group', cluster_id) == 'good'
 
+        @self.add_column(show=False)
+        def mua(cluster_id):
+            """Good column for color."""
+            return self.cluster_meta.get('group', cluster_id) == 'mua'
+            
         # Add columns for labels.
         for field in self.fields:  # pragma: no cover
             self._add_field_column(field)

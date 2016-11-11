@@ -103,8 +103,10 @@ class ColorSelector(object):
 
     def get(self, clu, cluster_ids=None, cluster_group=None, alpha=None):
         alpha = alpha or .5
-        if cluster_group in ('noise', 'mua'):
+        if cluster_group == 'noise':
             color = (.5,) * 4
+        elif cluster_group == 'mua':
+            color = (0,.5,0,.5)
         elif cluster_ids and clu in cluster_ids:
             i = cluster_ids.index(clu)
             color = _colormap(i)
