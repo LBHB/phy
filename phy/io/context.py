@@ -77,7 +77,7 @@ class Context(object):
         # Load the memcache from disk, if it exists.
         path = op.join(self.cache_dir, 'memcache', name + '.pkl')
         if op.exists(path):
-            logger.debug("Load memcache for `%s`.", name)
+            logger.debug("Load memcache for `{}`, path is  {}.".format(name,path))
             with open(path, 'rb') as fd:
                 cache = load(fd)
         else:
