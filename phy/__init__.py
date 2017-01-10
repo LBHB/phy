@@ -14,7 +14,7 @@ import sys
 
 from six import StringIO
 
-from .io.datasets import download_file, download_sample_data
+from .io.datasets import download_file
 from .utils.config import load_master_config
 from .utils._misc import _git_version
 from .utils.plugin import IPlugin, get_plugin, discover_plugins
@@ -27,7 +27,7 @@ from .utils.testing import _enable_profiler
 
 __author__ = 'Kwik team'
 __email__ = 'cyrille.rossant at gmail.com'
-__version__ = '1.0.8'
+__version__ = '1.0.9'
 __version_git__ = __version__ + _git_version()
 
 
