@@ -177,7 +177,7 @@ class Supervisor(EventEmitter):
         def on_cluster(up):
             """Register the next cluster in the list before the cluster
             view is updated."""
-            if not up.added:
+            if not up.added or not hasattr(self, 'cluster_view'):
                 return
             cluster = up.added[0]
             next_cluster = self.cluster_view.get_next_id()
@@ -339,9 +339,15 @@ class Supervisor(EventEmitter):
         self.actions.add(self.previous_best, menu='&Wizard')
         self.actions.separator(menu='&Wizard')
 
+    def _keep_existing_clusters(self, cluster_ids):
+        return [c for c in cluster_ids
+                if c in self.clustering.cluster_ids]
+
     def _emit_select(self, cluster_ids, **kwargs):
         """Choose spikes from the specified clusters and emit the
         `select` event on the GUI."""
+        # Remove non-existing clusters from the selection.
+        cluster_ids = self._keep_existing_clusters(cluster_ids)
         logger.debug("Select cluster(s): %s.",
                      ', '.join(map(str, cluster_ids)))
         self.emit('select', cluster_ids, **kwargs)
@@ -564,6 +570,8 @@ class Supervisor(EventEmitter):
         # the snippet: `:c 1 2 3` instead of `:c 1,2,3`.
         if cluster_ids and isinstance(cluster_ids[0], (tuple, list)):
             cluster_ids = list(cluster_ids[0]) + list(cluster_ids[1:])
+        # Remove non-existing clusters from the selection.
+        cluster_ids = self._keep_existing_clusters(cluster_ids)
         # Update the cluster view selection.
         self.cluster_view.select(cluster_ids)
 
@@ -574,13 +582,13 @@ class Supervisor(EventEmitter):
     # Clustering actions
     # -------------------------------------------------------------------------
 
-    def merge(self, cluster_ids=None):
+    def merge(self, cluster_ids=None, to=None):
         """Merge the selected clusters."""
         if cluster_ids is None:
             cluster_ids = self.selected
         if len(cluster_ids or []) <= 1:
             return
-        self.clustering.merge(cluster_ids)
+        self.clustering.merge(cluster_ids, to=to)
         self._global_history.action(self.clustering)
 
     def split(self, spike_ids=None, spike_clusters_rel=0):
