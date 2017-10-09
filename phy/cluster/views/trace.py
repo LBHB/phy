@@ -84,6 +84,10 @@ class SpikeClick(Event):
         self.spike_id = spike_id
         self.cluster_id = cluster_id
 
+class TimeChange(Event):
+    def __init__(self, type,time=None):
+        super(TimeChange, self).__init__(type)
+        self.time = time      
 
 class TraceView(ManualClusteringView):
     interval_duration = .25  # default duration of the interval
@@ -151,6 +155,8 @@ class TraceView(ManualClusteringView):
         self.box_size = np.array(self.stacked.box_size)
         self._update_boxes()
 
+        self.events.add(time_change=TimeChange)
+        
         # Initial interval.
         self._interval = None
         self.go_to(duration / 2.)
@@ -331,6 +337,11 @@ class TraceView(ManualClusteringView):
                      spike_id=e.spike_id,
                      cluster_id=e.cluster_id,
                      )
+        @self.connect
+        def on_time_change(time):
+            gui.emit('time_change',
+                     time=time,
+                     )
 
     @property
     def state(self):
@@ -393,6 +404,7 @@ class TraceView(ManualClusteringView):
         """Go to a specific time (in seconds)."""
         half_dur = self.half_duration
         self.set_interval((time - half_dur, time + half_dur))
+        self.events.time_change(time=time)
 
     def shift(self, delay):
         """Shift the interval by a given delay (in seconds)."""
