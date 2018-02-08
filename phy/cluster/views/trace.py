@@ -454,6 +454,16 @@ class TraceView(ManualClusteringView):
         self.scaling /= self.scaling_coeff_y
         self._update_boxes()
 
+    # Channel Zoom
+    
+    def channel_zoom(self,channel,N):
+        """Zoom over best channel."""
+        zo = [1, self.n_channels/N]
+        p  = [0, -2*channel/self.n_channels+1]
+        print(p)
+        self.panzoom.set_pan_zoom(zoom=zo,pan=p)
+         
+                    
     # Spike selection
     # -------------------------------------------------------------------------
 

@@ -303,6 +303,7 @@ class Supervisor(EventEmitter):
         # Clustering.
         self.actions.add(self.merge, alias='g')
         self.actions.add(self.split, alias='k')
+        self.actions.add(self.split_FTT, shortcut='shift+k')
         self.actions.separator()
 
         # Move.
@@ -545,6 +546,10 @@ class Supervisor(EventEmitter):
         def on_request_split():
             return gui.emit('request_split', single=True)
 
+        @self.connect
+        def on_request_split_FTT():
+            return gui.emit('request_split_FTT', single=True)
+        
         # Save the view state in the GUI state.
         @gui.connect_
         def on_close():
@@ -607,7 +612,13 @@ class Supervisor(EventEmitter):
         self.clustering.split(spike_ids,
                               spike_clusters_rel=spike_clusters_rel)
         self._global_history.action(self.clustering)
-
+    def split_FTT(self):
+        spike_ids = self.emit('request_split_FTT', single=True)
+        spike_ids = np.asarray(spike_ids, dtype=np.int64)
+        assert spike_ids.dtype == np.int64
+        assert spike_ids.ndim == 1
+        
+        self.split(spike_ids=spike_ids)
     # Move actions
     # -------------------------------------------------------------------------
 
