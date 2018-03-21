@@ -101,6 +101,7 @@ class TraceView(ManualClusteringView):
         'decrease': 'alt+down',
         'increase': 'alt+up',
         'toggle_show_labels': 'alt+l',
+        'toggle_rescale_yaxis': 'alt+r',
         'widen': 'alt+-',
         'narrow': 'alt++',
     }
@@ -143,6 +144,8 @@ class TraceView(ManualClusteringView):
         # Box and probe scaling.
         self._scaling = 1.
         self._origin = None
+        self._rescale_yaxis = True
+        self._data_bounds = None
 
         # Initialize the view.
         super(TraceView, self).__init__(layout='stacked',
@@ -269,7 +272,10 @@ class TraceView(ManualClusteringView):
         traces = self.traces(interval)
 
         # Find the data bounds.
-        ymin, ymax = traces.data.min(), traces.data.max()
+        if self._rescale_yaxis or self._data_bounds is None:
+            ymin, ymax = traces.data.min(), traces.data.max()
+        else:
+            ymin, ymax = self._data_bounds[1], self._data_bounds[3]
         data_bounds = (start, ymin, end, ymax)
 
         # Used for spike click.
@@ -326,6 +332,7 @@ class TraceView(ManualClusteringView):
         self.actions.add(self.narrow)
         self.actions.separator()
         self.actions.add(self.toggle_show_labels)
+        self.actions.add(self.toggle_rescale_yaxis)
 
         # We forward the event from VisPy to the phy GUI.
         @self.connect
@@ -438,6 +445,9 @@ class TraceView(ManualClusteringView):
         self.do_show_labels = not self.do_show_labels
         self.set_interval(force_update=True)
 
+    def toggle_rescale_yaxis(self):
+        self._rescale_yaxis = not self._rescale_yaxis
+        self.set_status('rescale_yaxis set to {}'.format(self._rescale_yaxis))
     # Channel scaling
     # -------------------------------------------------------------------------
 
