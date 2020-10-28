@@ -186,6 +186,12 @@ class ManualClusteringView(object):
         # them here, in the main GUI thread.
         @worker.signals.finished.connect
         def finished():
+            # HACK: work-around for https://github.com/cortex-lab/phy/issues/1016
+            try:
+                self
+            except NameError as e:  # pragma: no cover
+                logger.warning(str(e))
+                return
             # When the task has finished in the thread pool, we recover all program
             # updates of the view, and we execute them on the GPU.
             if isinstance(self.canvas, PlotCanvas):
@@ -260,8 +266,10 @@ class ManualClusteringView(object):
         connect(on_select, event='select')
 
         # Save the view state in the GUI state.
-        @connect(view=self)
+        @connect
         def on_close_view(view_, gui):
+            if view_ != self:
+                return
             logger.debug("Close view %s.", self.name)
             self._closed = True
             gui.remove_menu(self.name)
@@ -276,6 +284,7 @@ class ManualClusteringView(object):
 
         # HACK: Fix bug on macOS where docked OpenGL widgets were not displayed at startup.
         self._set_floating = AsyncCaller(delay=5)
+
         @self._set_floating.set
         def _set_floating():
             self.dock.setFloating(False)
