@@ -138,7 +138,6 @@ class TraceView(ScalingMixin, BaseColorView, ManualClusteringView):
         'switch_origin': 'alt+o',
         'toggle_highlighted_spikes': 'alt+s',
         'toggle_show_labels': 'alt+l',
-        'toggle_rescale_yaxis': 'alt+r',
         'widen': 'alt+-',
     }
     default_snippets = {
@@ -179,12 +178,6 @@ class TraceView(ScalingMixin, BaseColorView, ManualClusteringView):
         self.channel_y_ranks = np.argsort(np.argsort(self.channel_positions[:, 1]))
         assert self.channel_y_ranks.shape == (n_channels,)
 
-        # Box and probe scaling.
-        self._scaling = 1.
-        self._origin = None
-        self._rescale_yaxis = True
-        self._data_bounds = None
-
         # Channel labels.
         self.channel_labels = (
             channel_labels if channel_labels is not None else
@@ -199,8 +192,6 @@ class TraceView(ScalingMixin, BaseColorView, ManualClusteringView):
         # Visuals.
         self._create_visuals()
 
-        self.events.add(time_change=TimeChange)
-        
         # Initial interval.
         self._interval = None
         self.go_to(duration / 2.)
@@ -499,7 +490,6 @@ class TraceView(ScalingMixin, BaseColorView, ManualClusteringView):
         """Go to a specific time (in seconds)."""
         half_dur = self.half_duration
         self.set_interval((time - half_dur, time + half_dur))
-        self.events.time_change(time=time)
 
     def shift(self, delay):
         """Shift the interval by a given delay (in seconds)."""
@@ -606,16 +596,6 @@ class TraceView(ScalingMixin, BaseColorView, ManualClusteringView):
         self.scaling = value
         self.stacked.update()
 
-    # Channel Zoom
-    
-    def channel_zoom(self,channel,N):
-        """Zoom over best channel."""
-        zo = [1, self.n_channels/N]
-        p  = [0, -2*channel/self.n_channels+1]
-        print(p)
-        self.panzoom.set_pan_zoom(zoom=zo,pan=p)
-         
-                    
     # Spike selection
     # -------------------------------------------------------------------------
 

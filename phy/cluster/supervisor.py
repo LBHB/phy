@@ -484,7 +484,6 @@ class ActionCreator(object):
         # Clustering.
         self.add(w, 'merge', set_busy=True, icon='f247')
         self.add(w, 'split', set_busy=True)
-        self.add(w, 'split_FTT', set_busy=True, shortcut='shift+k')
         self.edit_actions.separator()
 
         # Move.
@@ -1042,23 +1041,6 @@ class Supervisor(object):
             spike_ids, spike_clusters_rel=spike_clusters_rel)
         self._global_history.action(self.clustering)
         return out
-
-    def split_FTT(self):
-        spike_ids = self.emit('request_split_FTT', single=True)
-        spike_ids = np.asarray(spike_ids, dtype=np.int64)
-        assert spike_ids.dtype == np.int64
-        assert spike_ids.ndim == 1
-        
-        selected=self.selected
-        self.split(spike_ids=spike_ids)
-
-        new_selected = self.cluster_view.selected
-        select_these = self.clustering.cluster_ids[np.in1d(self.clustering.cluster_ids,selected +new_selected)].tolist()
-        if selected[0] in select_these:
-            select_these.insert(0, select_these.pop(select_these.index(selected[0])))
-        else:
-            select_these.insert(0, select_these.pop(select_these.index(new_selected[0])))
-        self.select(select_these)
 
     # Move actions
     # -------------------------------------------------------------------------
